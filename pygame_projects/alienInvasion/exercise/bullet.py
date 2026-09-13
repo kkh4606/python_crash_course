@@ -15,7 +15,7 @@ class Bullet(Sprite):
             0, 0, self.settings.bullet_height, self.settings.bullet_width
         )
 
-        self.rect.midright = root.ship.rect.midright
+        self.rect.midright = root.ship.play_rect.midright
 
         self.x = self.rect.x
 

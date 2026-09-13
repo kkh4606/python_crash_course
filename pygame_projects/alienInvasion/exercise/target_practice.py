@@ -61,71 +61,59 @@ class ResetStats:
         self.bullet_left = self.settings.bullet_allowed
 
 
-class LevelUp:
+class Levels:
     def __init__(self):
-        self.level = 1
 
-    def level_up(self):
-        self.level += 1
+        self.easy = 1
+        self.medium = 1.1
+        self.hard = 2
 
 
-class LevelButton:
+class Buttons:
     def __init__(self, parent):
+
         self.screen = parent.screen
-        self.screen_rect = self.screen.get_rect()
 
         self.settings = parent.settings
 
-        self.rect = pygame.Rect(
-            0, 0, self.settings.button_width, self.settings.button_height
-        )
+        self.play_rect = pygame.Rect(375, 280, 150, 40)
+        self.easy_rect = pygame.Rect(375, 330, 150, 40)
+        self.medium_rect = pygame.Rect(375, 380, 150, 40)
+        self.hard_rect = pygame.Rect(375, 430, 150, 40)
 
-        self.rect.x = parent.play_button.rect.x
-        self.rect.y = parent.play_button.rect.y + parent.play_button.rect.height + 20
-
-        self.prepare_msg("Level up")
-
-    def prepare_msg(self, msg):
-
-        font = pygame.font.Font(None, 30)
-
-        self.msg_image = font.render(msg, True, "white")
-        self.msg_image_rect = self.msg_image.get_rect()
-
-        self.msg_image_rect.center = self.rect.center
-
-    def draw_button(self):
-
-        self.screen.fill("green", self.rect)
-
-        self.screen.blit(self.msg_image, self.msg_image_rect)
-
-
-class PlayButton:
-    def __init__(self, parent):
-        self.screen = parent.screen
-        self.screen_rect = self.screen.get_rect()
-
-        self.settings = parent.settings
         self.font = pygame.font.Font(None, 30)
 
-        self.rect = pygame.Rect(
-            0, 0, self.settings.button_width, self.settings.button_height
-        )
+        self._prep_text()
 
-        self.rect.center = self.screen_rect.center
+    def _prep_text(self):
 
-        self._prepare_text("Play")
+        self.play_msg = self.font.render("Play", True, "white")
+        self.play_msg_rect = self.play_msg.get_rect()
 
-    def _prepare_text(self, msg):
-        self.msg_image = self.font.render(msg, True, self.settings.button_text_color)
-        self.msg_image_rect = self.msg_image.get_rect()
+        self.easy_msg = self.font.render("Easy", True, "white")
+        self.easy_msg_rect = self.easy_msg.get_rect()
 
-        self.msg_image_rect.center = self.rect.center
+        self.medium_msg = self.font.render("Medium", True, "white")
+        self.medium_msg_rect = self.medium_msg.get_rect()
 
-    def draw_button(self):
-        self.screen.fill(self.settings.button_color, self.rect)
-        self.screen.blit(self.msg_image, self.msg_image_rect)
+        self.hard_msg = self.font.render("Hard", True, "white")
+        self.hard_msg_rect = self.medium_msg.get_rect()
+
+        self.play_msg_rect.center = self.play_rect.center
+        self.easy_msg_rect.center = self.easy_rect.center
+        self.medium_msg_rect.center = self.medium_rect.center
+        self.hard_msg_rect.center = self.hard_rect.center
+
+    def draw(self):
+        self.screen.fill("green", self.play_rect)
+        self.screen.fill("green", self.easy_rect)
+        self.screen.fill("green", self.medium_rect)
+        self.screen.fill("green", self.hard_rect)
+
+        self.screen.blit(self.play_msg, self.play_msg_rect)
+        self.screen.blit(self.easy_msg, self.easy_msg_rect)
+        self.screen.blit(self.medium_msg, self.medium_msg_rect)
+        self.screen.blit(self.hard_msg, self.hard_msg_rect)
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -165,7 +153,9 @@ class TargetObject:
 
         self.settings = parent.settings
 
-        self.rect = pygame.Rect(0, 10, self.settings.width, self.settings.height)
+        self.rect = pygame.Rect(0, 0, self.settings.width, self.settings.height)
+
+        self.rect.y = self.screen_rect.center[1]
 
         self.y = self.rect.y
 
@@ -236,14 +226,12 @@ class Game:
         self.ship = Ship(self)
         self.enemy = TargetObject(self)
         self.bullets = pygame.sprite.Group()
-        self.play_button = PlayButton(self)
-        self.level_button = LevelButton(self)
+        self.buttons = Buttons(self)
+
         self.stats = ResetStats(self)
         self.clock = pygame.time.Clock()
         self.game_active = False
         self.running = True
-
-        self.game_level = LevelUp()
 
     def run(self):
 
@@ -254,7 +242,7 @@ class Game:
             self.clock.tick(60)
 
     def _check_play_button(self, mouse_pos):
-        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        button_clicked = self.buttons.play_rect.collidepoint(mouse_pos)
         if button_clicked and not self.game_active:
 
             self.stats.reset_stats()
@@ -265,17 +253,6 @@ class Game:
             self.ship.reset_position()
 
             pygame.mouse.set_visible(False)
-
-    def _up_game_level(self, mouse_pos):
-
-        button_click = self.level_button.rect.collidepoint(mouse_pos)
-
-        if button_click:
-
-            self.game_level.level_up()
-
-            self.settings.ship_speed *= self.game_level.level
-            self.settings.rect_speed *= self.game_level.level
 
     def _update_enemy(self):
         self._check_rect_edge()
@@ -292,20 +269,13 @@ class Game:
 
     def _show_fps(self):
 
-        font = pygame.font.SysFont("consolas", 16)
+        font = pygame.font.SysFont("consolas", 18)
 
         fps = pygame.time.Clock.get_fps(self.clock)
 
-        fps_image = font.render(f"FPS:{fps:.2f}", True, "grey")
+        fps_image = font.render(f"FPS:{fps:.2f}", True, "green")
 
-        self.screen.blit(fps_image, (750, 5))
-
-    def _show_level(self):
-        font = pygame.font.SysFont("consolas", 16)
-
-        level_text = font.render(f"Level:{self.game_level.level}", True, "grey")
-
-        self.screen.blit(level_text, (750, 20))
+        self.screen.blit(fps_image, (3, 7))
 
     def _update_screen(self):
 
@@ -323,12 +293,11 @@ class Game:
             bullet.draw_bullet()
         self.enemy.draw_enemy()
         self._show_fps()
-        self._show_level()
         self.ship.blitme()
 
         if not self.game_active:
-            self.level_button.draw_button()
-            self.play_button.draw_button()
+
+            self.buttons.draw()
 
         pygame.display.flip()
 
@@ -383,7 +352,6 @@ class Game:
                 mouse_pos = pygame.mouse.get_pos()
 
                 self._check_play_button(mouse_pos)
-                self._up_game_level(mouse_pos)
 
     def _check_keydown_event(self, event):
 
@@ -396,7 +364,9 @@ class Game:
             self._fire_bullets()
 
         elif event.key == pygame.K_RETURN:
-            self._check_play_button((self.play_button.rect.x, self.play_button.rect.y))
+            self._check_play_button(
+                (self.buttons.play_rect.x, self.buttons.play_rect.y)
+            )
 
     def _check_keyup_event(self, event):
         if event.key == pygame.K_DOWN:

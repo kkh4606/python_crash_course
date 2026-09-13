@@ -272,16 +272,10 @@ class Game:
 
         if button_click:
 
-            # self.stats.reset_stats()
-            # self.game_active = True
-            #
-            # self.bullets.empty()
-            # self.enemy.reset_position()
-            # self.ship.reset_position()
-            #
             self.game_level.level_up()
-            #
-            # pygame.mouse.set_visible(False)
+
+            self.settings.ship_speed *= self.game_level.level
+            self.settings.rect_speed *= self.game_level.level
 
     def _update_enemy(self):
         self._check_rect_edge()

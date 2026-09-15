@@ -254,6 +254,25 @@ class Game:
 
             pygame.mouse.set_visible(False)
 
+    def _change_game_level(self, mouse_pos):
+
+        easy_btn_clicked = self.buttons.easy_rect.collidepoint(mouse_pos)
+        medium_btn_clicked = self.buttons.medium_rect.collidepoint(mouse_pos)
+        hard_btn_clicked = self.buttons.hard_rect.collidepoint(mouse_pos)
+
+        self.settings.initialize_dynamic_settings()
+
+        if easy_btn_clicked:
+            self.settings.speedup_scale = 1
+
+        if medium_btn_clicked:
+            self.settings.speedup_scale = 1.5
+
+        if hard_btn_clicked:
+            self.settings.speedup_scale = 2
+
+        self.settings.increase_speed()
+
     def _update_enemy(self):
         self._check_rect_edge()
         self.enemy.update()
@@ -326,8 +345,6 @@ class Game:
             self.game_active = False
             pygame.mouse.set_visible(True)
 
-            self.settings.increase_speed()
-
         if self.stats.bullet_left == len(self.bullets) == 0:
 
             self.game_active = False
@@ -352,6 +369,7 @@ class Game:
                 mouse_pos = pygame.mouse.get_pos()
 
                 self._check_play_button(mouse_pos)
+                self._change_game_level(mouse_pos)
 
     def _check_keydown_event(self, event):
 

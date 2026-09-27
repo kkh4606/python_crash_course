@@ -2,7 +2,9 @@ import sys
 from time import sleep
 
 import pygame
+from pygame import mixer
 
+from pygame_projects.alienInvasion.scoreboard import Scoreboard
 from settings import Settings
 from game_stats import GameStats
 from button import Button
@@ -17,6 +19,9 @@ class AlienInvasion:
     def __init__(self):
         """Initialize the game, and create game resources."""
         pygame.init()
+        mixer.init()
+        mixer.music.load("assets/sound_effects/mixkit-short-laser-gun-shot-1670.wav")
+
         self.clock = pygame.time.Clock()
         self.settings = Settings()
 
@@ -27,6 +32,8 @@ class AlienInvasion:
 
         # Create an instance to store game statistics.
         self.stats = GameStats(self)
+
+        self.scoreboard = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -44,7 +51,6 @@ class AlienInvasion:
         """Start the main loop for the game."""
         while True:
             self._check_events()
-
             if self.game_active:
                 self.ship.update()
                 self._update_bullets()
@@ -56,6 +62,7 @@ class AlienInvasion:
     def _check_events(self):
         """Respond to keypresses and mouse events."""
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
@@ -72,6 +79,7 @@ class AlienInvasion:
         if button_clicked and not self.game_active:
             # Reset the game statistics.
             self.stats.reset_stats()
+            self.scoreboard.prep_images()
             self.settings.initialize_dynamic_settings()
             self.game_active = True
 
@@ -110,6 +118,7 @@ class AlienInvasion:
     def _fire_bullet(self):
         """Create a new bullet and add it to the bullets group."""
         if len(self.bullets) < self.settings.bullets_allowed:
+            mixer.music.play()
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
 
@@ -130,17 +139,34 @@ class AlienInvasion:
         # Remove any bullets and aliens that have collided.
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
 
+        if collisions:
+
+            for aliens in collisions.values():
+
+                self.stats.score += self.settings.alien_points * len(aliens)
+
+            self.scoreboard.prep_score()
+            self.scoreboard.check_high_score()
+
+            self.start_new_level()
+
+    def start_new_level(self):
+
         if not self.aliens:
             # Destroy existing bullets and create new fleet.
             self.bullets.empty()
             self._create_fleet()
             self.settings.increase_speed()
+            self.stats.level += 1
+            self.scoreboard.prep_level()
 
     def _ship_hit(self):
         """Respond to the ship being hit by an alien."""
         if self.stats.ships_left > 0:
             # Decrement ships_left.
             self.stats.ships_left -= 1
+
+            self.scoreboard.prep_ship()
 
             # Get rid of any remaining bullets and aliens.
             self.bullets.empty()
@@ -220,6 +246,8 @@ class AlienInvasion:
         self.screen.fill(self.settings.bg_color)
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+
+        self.scoreboard.show_score()
         self.ship.blitme()
         self.aliens.draw(self.screen)
 

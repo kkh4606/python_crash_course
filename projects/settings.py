@@ -14,7 +14,7 @@ class Settings:
         self.board_width = 130
         self.board_height = 20
         self.board_color = (51, 51, 225)
-        self.board_speed = 10
+        self.board_speed = 4
 
         # ball settings
         self.ball_width = 20
@@ -22,6 +22,7 @@ class Settings:
         self.ball_color = (255, 0, 0)
         self.ball_speed_x = 3
         self.ball_speed_y = 3
+        self.ball_direction = 1
 
         # button settings
         self.button_width = 140

@@ -32,3 +32,10 @@ class Board:
             self.x -= settings.board_speed
 
         self.rect.x = self.x
+
+    def reset_board_position(self):
+
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = self.rect.x
+
+        ...

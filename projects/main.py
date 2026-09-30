@@ -22,6 +22,8 @@ class Game:
             (settings.screen_width, settings.screen_height)
         )
 
+        self.screen_rect = self.screen.get_rect()
+
         self.running = True
         self.clock = pygame.time.Clock()
 
@@ -89,8 +91,9 @@ class Game:
         for target in self.targets.sprites():
             target.draw_target()
         self.scoreboard.show_score_level()
-        self.ball.draw_ball()
+
         self.board.draw()
+        self.ball.draw_ball()
 
         if self.game_active:
 
@@ -109,29 +112,29 @@ class Game:
 
             self.game_active = True
 
-            self.ball.rect.midtop = self.screen.get_rect().midtop
+            self.board.reset_board_position()
+
+            self.ball.reset_ball_position()
 
     def check_collisions(self):
 
-        if self.ball.rect.top < 0 or self.ball.rect.bottom > settings.screen_height:
+        if self.ball.rect.top <= 0 or self.ball.rect.bottom >= settings.screen_height:
+
             settings.ball_speed_y *= -1
 
-        if self.ball.rect.left <= 0 or self.ball.rect.right >= settings.screen_width:
+        if self.ball.rect.left < 0 or self.ball.rect.right > settings.screen_width:
+
             settings.ball_speed_x *= -1
 
-        if self.board.rect.colliderect(self.ball.rect):
-            settings.ball_speed_x *= -1
+        if self.ball.rect.colliderect(self.board.rect):
             settings.ball_speed_y *= -1
-
-        if self.ball.rect.bottom > settings.screen_height:
-            self.game_active = False
 
     def check_target_ball_collisions(self):
 
         for target in self.targets.sprites():
 
             if self.ball.rect.colliderect(self.target.rect):
-                print("remove this target")
+                self.targets.remove(target)
 
     def check_events(self):
 

@@ -129,11 +129,10 @@ class Game:
         if self.ball.rect.colliderect(self.board.rect):
             settings.ball_speed_y *= -1
 
-    def check_target_ball_collisions(self):
-
         for target in self.targets.sprites():
 
-            if self.ball.rect.colliderect(self.target.rect):
+            if self.ball.rect.colliderect(target.rect):
+                settings.ball_speed_y *= -1
                 self.targets.remove(target)
 
     def check_events(self):

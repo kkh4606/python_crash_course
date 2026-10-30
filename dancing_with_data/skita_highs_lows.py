@@ -15,7 +15,6 @@ dates, highs, lows = [], [], []
 
 
 for row in reader:
-    print(row)
 
     current_date = datetime.strptime(row[2], "%Y-%m-%d")
 

@@ -6,7 +6,7 @@ from datetime import datetime
 
 def generate_temps():
 
-    path = Path("w_data/4422482.csv")
+    path = Path("w_data/sitka_weather_2021_full.csv")
     lines = path.read_text().splitlines()
 
     reader = csv.reader(lines)
@@ -17,14 +17,15 @@ def generate_temps():
 
     for row in reader:
 
+        current_date = datetime.strptime(row[2], "%Y-%m-%d")
+
         try:
 
-            current_date = datetime.strptime(row[2], "%Y-%m-%d")
-
-            high = int(row[4])
-            low = int(row[5])
+            high = int(row[header_row.index("TMAX")])
+            low = int(row[header_row.index("TMIN")])
         except ValueError:
-            ...
+
+            print(f'No data for {current_date}')
 
         else:
 
@@ -41,6 +42,7 @@ dates, highs, lows = generate_temps()
 fig, ax = plt.subplots()
 ax.plot(dates, highs, color="red", alpha=0.5)
 ax.plot(dates, lows, color="blue", alpha=0.5)
+ax.fill_between(dates, highs, lows, color="green", alpha=0.1)
 
 
 # Format plots

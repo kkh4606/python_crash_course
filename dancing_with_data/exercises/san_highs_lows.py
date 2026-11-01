@@ -4,49 +4,57 @@ from pathlib import Path
 from datetime import datetime
 
 
-def generate_temps():
+class GenerateTemperature:
 
-    path = Path("w_data/sitka_weather_2021_full.csv")
-    lines = path.read_text().splitlines()
+    def __init__(self, path):
+        self.dates, self.highs, self.lows = [], [], []
 
-    reader = csv.reader(lines)
+        self.path = Path(path)
+        self.title = None
 
-    header_row = next(reader)
+    def generate(self):
 
-    dates, highs, lows = [], [], []
+        lines = self.path.read_text().splitlines()
 
-    for row in reader:
+        reader = csv.reader(lines)
 
-        current_date = datetime.strptime(row[2], "%Y-%m-%d")
+        header_row = next(reader)
 
-        try:
+        for r in reader:
 
-            high = int(row[header_row.index("TMAX")])
-            low = int(row[header_row.index("TMIN")])
-        except ValueError:
+            title = r[header_row.index("NAME")]
 
-            print(f'No data for {current_date}')
+            self.title = title
+            break
 
-        else:
+        for row in reader:
+            current_date = datetime.strptime(row[2], "%Y-%m-%d")
 
-            dates.append(current_date)
-            highs.append(high)
-            lows.append(low)
+            try:
 
-    return dates, highs, lows
+                high = int(row[header_row.index("TMAX")])
+                low = int(row[header_row.index("TMIN")])
+
+            except ValueError:
+                print(f"No data for {current_date}")
+            else:
+                self.dates.append(current_date)
+                self.highs.append(high)
+                self.lows.append(low)
 
 
-dates, highs, lows = generate_temps()
+t = GenerateTemperature("w_data/4423131.csv")
+t.generate()
 
 
 fig, ax = plt.subplots()
-ax.plot(dates, highs, color="red", alpha=0.5)
-ax.plot(dates, lows, color="blue", alpha=0.5)
-ax.fill_between(dates, highs, lows, color="green", alpha=0.1)
+ax.plot(t.dates, t.highs, color="red", alpha=0.5)
+ax.plot(t.dates, t.lows, color="blue", alpha=0.5)
+ax.fill_between(t.dates, t.highs, t.lows, color="green", alpha=0.1)
 
 
 # Format plots
-ax.set_title("Daily High and Low Temperatures San Francisco", fontsize=20)
+ax.set_title(t.title, fontsize=20)
 ax.set_xlabel("", fontsize=13)
 
 fig.autofmt_xdate()

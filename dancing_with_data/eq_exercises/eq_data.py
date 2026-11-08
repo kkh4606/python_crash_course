@@ -49,6 +49,7 @@ fig = px.scatter_geo(
     color_continuous_scale="blues",
     labels={"color": "magnitude"},
     hover_name=places,
+    projection="natural earth",
 )
 
 fig.show()

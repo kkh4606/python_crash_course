@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from dancing_with_data.random_walk import RandomWalk
+from dancing_with_data.lessons.random_walk import RandomWalk
 
 random_walk = RandomWalk(points=5000)
 random_walk.fill_walk()

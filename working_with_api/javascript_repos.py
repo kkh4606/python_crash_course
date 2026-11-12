@@ -49,7 +49,7 @@ for repo_dict in repo_dicts:
     hover_texts.append(hover_text)
 
 
-title = "Most-Starred repository Javascript"
+title = "Most-Starred Javascript Repository on github"
 labels = {"x": "Repository", "y": "Stars"}
 fig = px.bar(x=repo_links, y=stars, title=title, labels=labels, hover_name=hover_texts)
 fig.update_layout(

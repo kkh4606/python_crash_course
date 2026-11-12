@@ -18,7 +18,7 @@ print(f"Total repositories: {res_dict['total_count']}")
 print(f"Completed results: {not res_dict['incomplete_results']}")
 
 # Explore information about the repositories.
-repo_dicts: list = res_dict["items"]
+repo_dicts: list[dict] = res_dict["items"]
 print(f"Repositories returned: {len(repo_dicts)}")
 
 
